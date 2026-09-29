@@ -184,7 +184,40 @@ SwiftUI renders the image</pre></div>
       </section>
 
       <section>
-        <h2>7. Failure, cancellation, and fallback behavior</h2>
+        <h2>7. Datadog dashboard and engine score</h2>
+        <p><a href="https://app.datadoghq.com/dashboard/ak9-4wi-3xa?fromUser=true&amp;refresh_mode=sliding&amp;tpl_var_env%5B0%5D=prod&amp;from_ts=1790670981452&amp;to_ts=1790678181452&amp;live=true" target="_blank" rel="noopener">Open the iOS Remote Image Library Experiment dashboard in Datadog ↗</a></p>
+        <div class="notice"><strong>Dashboard scope.</strong> The dashboard reads Datadog RUM resource events from the experiment. The score is relative: 100 means best among the engines in the selected window, not an absolute performance target.</div>
+        <h3>Initial weights</h3>
+        <table><thead><tr><th>Component</th><th>Data</th><th>Weight</th></tr></thead><tbody>
+          <tr><td>Network latency</td><td><code>image_duration_ms</code>, Network source, p90 lower-is-better</td><td><strong>40%</strong></td></tr>
+          <tr><td>Disk latency</td><td><code>image_duration_ms</code>, Disk source, p90 lower-is-better</td><td><strong>10%</strong></td></tr>
+          <tr><td>Memory latency</td><td><code>image_duration_ms</code>, Memory source, p90 lower-is-better</td><td><strong>5%</strong></td></tr>
+          <tr><td>Reliability</td><td><code>success_count / total_count</code>, higher-is-better</td><td><strong>20%</strong></td></tr>
+          <tr><td>Decoded memory footprint</td><td><code>image_decoded_memory_cost_bytes</code>, p90 lower-is-better</td><td><strong>20%</strong></td></tr>
+          <tr><td>Wasted work</td><td><code>image_is_duplicate_request</code>, lower-is-better</td><td><strong>5%</strong></td></tr>
+          <tr><td>Cache effectiveness</td><td><code>image_cache_source</code>, descriptive only because coverage is incomplete</td><td>Descriptive</td></tr>
+          <tr><td>Bandwidth</td><td><code>image_encoded_size_bytes</code>, descriptive only because coverage is incomplete</td><td>Descriptive</td></tr>
+        </tbody></table>
+        <h3>Relative formula</h3>
+        <div class="diagram"><pre>lower-is-better = 100 × min(best_value / provider_value, 1)
+higher-is-better = 100 × min(provider_value / best_value, 1)
+
+engine_score =
+    0.40 × network_score
+  + 0.10 × disk_score
+  + 0.05 × memory_latency_score
+  + 0.20 × reliability_score
+  + 0.20 × decoded_memory_score
+  + 0.05 × duplicate_work_score
+
+Active weights sum to 100%.
+Cache effectiveness and bandwidth remain diagnostic widgets only.</pre></div>
+        <h3>Thresholds and missing data</h3>
+        <ul><li><strong>Green:</strong> score greater than 80.</li><li><strong>Orange:</strong> score from 50 through 80.</li><li><strong>Red:</strong> score below 50.</li><li>A blank component means its query has no usable data; it is not zero or 100.</li><li>Network, Disk, and Memory are separated so cache hits do not make an engine appear faster at downloading.</li></ul>
+      </section>
+
+      <section>
+        <h2>8. Failure, cancellation, and fallback behavior</h2>
         <div class="grid">
           <article class="card"><h3>Missing image ID</h3><p>The fetch finishes as a failure metric and returns the request item's fallback image.</p></article>
           <article class="card"><h3>Provider error</h3><p>The fetch records failure, returns the fallback, and does not publish a successful image.</p></article>
