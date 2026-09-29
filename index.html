@@ -3,273 +3,40 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Remote Image Library Experiment | Runtime Flow</title>
+  <title>Shared HTML Pages</title>
   <style>
-    :root {
-      --bg: #0b1020;
-      --panel: #131b30;
-      --panel-2: #18243d;
-      --line: #2b3a5d;
-      --text: #eef3ff;
-      --muted: #aebbd5;
-      --blue: #76a9ff;
-      --green: #67dfb1;
-      --orange: #ffbd73;
-      --pink: #f39bd8;
-      --shadow: 0 18px 50px rgba(0, 0, 0, .24);
-    }
-    * { box-sizing: border-box; }
+    :root { color-scheme: light dark; }
     body {
+      display: grid;
+      min-height: 100vh;
       margin: 0;
-      color: var(--text);
-      background: radial-gradient(circle at 10% 0%, #1a2e55 0, transparent 34rem), var(--bg);
-      font: 15px/1.6 Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      place-items: center;
+      background: #f5f7fb;
+      color: #172033;
+      font: 16px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-    a { color: var(--blue); }
-    code, pre { font-family: "SFMono-Regular", Consolas, monospace; }
-    code { color: #cfe0ff; }
-    .wrap { width: min(1180px, calc(100% - 32px)); margin: 0 auto; }
-    header { padding: 64px 0 34px; }
-    .eyebrow { color: var(--green); font-size: 12px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
-    h1 { max-width: 850px; margin: 10px 0 16px; font-size: clamp(32px, 6vw, 64px); line-height: 1.04; letter-spacing: -.045em; }
-    h2 { margin: 0 0 12px; font-size: 24px; }
-    h3 { margin: 0 0 6px; font-size: 17px; }
-    p { color: var(--muted); }
-    .lede { max-width: 780px; font-size: 18px; }
-    .notice { padding: 16px 18px; border: 1px solid #45669c; border-radius: 14px; background: rgba(40, 71, 123, .3); }
-    .tabs, .engine-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 20px 0; }
-    button { border: 1px solid var(--line); border-radius: 999px; padding: 9px 15px; color: var(--muted); background: var(--panel); cursor: pointer; font: inherit; }
-    button:hover, button.active { border-color: var(--blue); color: var(--text); background: #20365e; }
-    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin: 20px 0 44px; }
-    .stage { min-height: 168px; position: relative; padding: 17px; border: 1px solid var(--line); border-radius: 16px; background: linear-gradient(155deg, var(--panel-2), var(--panel)); box-shadow: var(--shadow); cursor: pointer; }
-    .stage:not(:last-child)::after { content: "→"; position: absolute; right: -18px; top: 65px; color: var(--blue); font-size: 24px; z-index: 2; }
-    .stage.active { border-color: var(--green); box-shadow: 0 0 0 2px rgba(103, 223, 177, .15), var(--shadow); }
-    .number { display: inline-grid; width: 28px; height: 28px; place-items: center; margin-bottom: 12px; border-radius: 50%; color: #07101e; background: var(--green); font-weight: 900; }
-    .stage small, .meta { color: var(--muted); }
-    .detail { display: none; margin: -24px 0 34px; padding: 22px; border: 1px solid var(--green); border-radius: 16px; background: rgba(20, 45, 56, .55); }
-    .detail.show { display: block; }
-    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
-    .card { padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: rgba(19, 27, 48, .86); }
-    .card p { margin: 7px 0 0; }
-    .card ul { margin: 10px 0 0; padding-left: 19px; color: var(--muted); }
-    .pill { display: inline-block; margin: 3px 4px 3px 0; padding: 3px 9px; border-radius: 999px; background: #243553; color: #dbe7ff; font-size: 12px; }
-    .provider { border-top: 3px solid var(--blue); }
-    .provider.kf { border-color: var(--green); }
-    .provider.nuke { border-color: var(--pink); }
-    .provider.control { border-color: var(--orange); }
-    .hidden { display: none !important; }
-    .diagram { overflow-x: auto; padding: 20px; border: 1px solid var(--line); border-radius: 16px; background: #080d19; }
-    pre { min-width: 760px; margin: 0; color: #d9e5ff; font-size: 13px; }
-    table { width: 100%; border-collapse: collapse; color: var(--muted); }
-    th, td { padding: 11px 10px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
-    th { color: var(--text); font-size: 12px; letter-spacing: .05em; text-transform: uppercase; }
-    section { margin: 44px 0; }
-    details { border-bottom: 1px solid var(--line); }
-    summary { padding: 15px 0; cursor: pointer; color: var(--text); font-weight: 700; }
-    details p, details ul { margin: 0 0 16px; }
-    footer { padding: 30px 0 60px; color: var(--muted); }
-    @media (max-width: 900px) {
-      .flow { grid-template-columns: 1fr; }
-      .stage { min-height: 0; }
-      .stage:not(:last-child)::after { content: "↓"; right: auto; left: 50%; top: auto; bottom: -26px; }
-      .grid { grid-template-columns: 1fr; }
+    main {
+      width: min(640px, calc(100% - 40px));
+      padding: 40px;
+      border: 1px solid #dbe2ef;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 20px 60px rgba(23, 32, 51, .12);
+    }
+    h1 { margin-top: 0; font-size: 34px; }
+    p { color: #53617a; }
+    @media (prefers-color-scheme: dark) {
+      body { background: #101522; color: #edf2ff; }
+      main { border-color: #2b3852; background: #182238; box-shadow: none; }
+      p { color: #b7c3d9; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="eyebrow">SONIC-2562 · Local technical walkthrough</div>
-      <h1>From a BDUI card to the image engine that actually runs</h1>
-      <p class="lede">An interactive map of the remote-image experiment in the iOS Customer app. Select a stage, switch engines, and expand the cards to follow feature-toggle resolution, request construction, cache behavior, provider execution, and metrics.</p>
-      <div class="notice"><strong>Scope.</strong> The experiment is wired to the <code>StoreCardV2</code> and <code>StoreCardV3Large</code> thumbnail surfaces. The normal application path remains SDWebImage unless an explicit experiment service is injected.</div>
-    </header>
-
-    <main>
-      <section>
-        <h2>1. Runtime path</h2>
-        <p>Click any stage to see what it owns and what it passes to the next actor.</p>
-        <div class="flow" id="flow">
-          <article class="stage active" data-stage="view"><span class="number">1</span><h3>BDUI view</h3><small>StoreCardV2 / StoreCardV3Large</small></article>
-          <article class="stage" data-stage="toggle"><span class="number">2</span><h3>Renderer + FT</h3><small>Resolve the assigned service</small></article>
-          <article class="stage" data-stage="remote"><span class="number">3</span><h3>RemoteImageView</h3><small>Shared SwiftUI rendering seam</small></article>
-          <article class="stage" data-stage="fetcher"><span class="number">4</span><h3>Fetcher + proxy</h3><small>Lifecycle, duplicate tracking, metrics</small></article>
-          <article class="stage" data-stage="provider"><span class="number">5</span><h3>Selected provider</h3><small>SDWebImage, Kingfisher, or Nuke</small></article>
-        </div>
-        <div class="detail show" id="stage-detail"></div>
-      </section>
-
-      <section>
-        <h2>2. Choose the engine</h2>
-        <div class="engine-tabs">
-          <button class="active" data-engine="control">SDWebImage · control</button>
-          <button data-engine="kf">Kingfisher · challenger</button>
-          <button data-engine="nuke">Nuke · challenger</button>
-        </div>
-        <div id="engine-content"></div>
-      </section>
-
-      <section>
-        <h2>3. Actor map</h2>
-        <div class="grid">
-          <article class="card"><h3>Renderer container</h3><p>Composition root injects <code>FeatureToggleServiceProtocol</code> into the V2 and V3 renderers.</p><span class="pill">BDUI</span><span class="pill">dependency injection</span></article>
-          <article class="card"><h3>Feature toggle</h3><p><code>IOS_IMAGE_DOWNLOAD_SERVICE</code> is read as a string. <code>kingfisher</code> and <code>nuke</code> select challengers; all other values select SDWebImage. The fallback behavior is the existing CustomerFoundation image service, with no experiment metrics on the normal path.</p><span class="pill">Customer_App$$$ layer</span><span class="pill">fallback: SDWebImage</span></article>
-          <article class="card"><h3>RemoteImage</h3><p>Immutable request description: image IDs, light/dark variants, size, crop mode, grayscale, placeholder, and fallback.</p><span class="pill">no I/O</span><span class="pill">provider-neutral</span></article>
-          <article class="card"><h3>RemoteImageView</h3><p>Uses the normal <code>.fetchImage</code> path when no service is supplied, or the deprecated experiment overload when an explicit service is supplied.</p><span class="pill">SwiftUI</span><span class="pill">lifecycle</span></article>
-          <article class="card"><h3>RemoteImageFetcher</h3><p>Owns cancellation, placeholder checks, asynchronous fetch, completion, duration clock, and deferred metadata evaluation.</p><span class="pill">@MainActor</span><span class="pill">ContinuousClock</span></article>
-          <article class="card"><h3>ImageServiceProviderProxy</h3><p>Selects the provider, registers duplicate requests, forwards provider results, and adds the duplicate flag.</p><span class="pill">actor tracker</span><span class="pill">metrics boundary</span></article>
-        </div>
-      </section>
-
-      <section>
-        <h2>4. Request sequence</h2>
-        <div class="diagram"><pre>StoreCardV2Renderer / StoreCardV3Renderer
-  │  getFeatureValue(IOS_IMAGE_DOWNLOAD_SERVICE)
-  │  RemoteImageService(experimentVariant: value)
-  ▼
-StoreCardV2View / StoreCardV3LargeView
-  │  RemoteImageView(remoteImage, service: selectedService)
-  ▼
-RemoteImageView
-  │  FetchImageModifier.applyFetch()
-  ▼
-RemoteImageFetcher.get()
-  │  cancel previous task
-  │  inspect cache for placeholder decision
-  │  create async task
-  ▼
-ImageServiceProviderProxy.fetchImageResult()
-  │  duplicateTracker.register(request key)
-  │  selected provider resolves the shared CDN URL
-  ▼
-SDWebImage adapter       Kingfisher manager       Nuke pipeline
-  │                       │                       │
-  └────────────── image + cache source + metadata ──────────────┘
-  ▼
-RemoteImageFetcher
-  │  stop duration clock
-  │  build deferred metadata
-  │  emit finish metrics
-  │  publish UIImage and completion
-  ▼
-SwiftUI renders the image</pre></div>
-      </section>
-
-      <section>
-        <h2>5. Configuration and cache parity</h2>
-        <table>
-          <thead><tr><th>Concern</th><th>SDWebImage</th><th>Kingfisher</th><th>Nuke</th></tr></thead>
-          <tbody>
-            <tr><td>Memory cache</td><td><code>SDImageCache</code>, 20 MB, unlimited count</td><td><code>MemoryStorage</code>, 20 MB, <code>Int.max</code> count</td><td><code>ImageCache</code>, 20 MB, <code>Int.max</code> count</td></tr>
-            <tr><td>Scale-down</td><td>Enabled in the experiment; 4096 px cap and 2 MB decoded-memory limit</td><td>Processor enabled; approximately 724 px effective RGBA cap; no upscaling</td><td>Resize processor enabled; approximately 724 px effective RGBA cap; no upscaling</td></tr>
-            <tr><td>Disk cache</td><td>Persistent <code>SDImageCache</code> disk layer; this service does not set a disk-size limit, so SDWebImage applies its own storage policy</td><td>Persistent <code>DiskStorage</code>; the library default size limit is <code>0</code>, meaning unlimited</td><td>Persistent <code>DataCache</code>; explicitly limited to 150 MB</td></tr>
-            <tr><td>Expiration</td><td>SDWebImage library expiration policy applies because the experiment does not override it</td><td>Memory entries expire after the library default of 5 minutes; disk entries expire after 7 days since last access</td><td>There is no time-based TTL by default, so entries remain until LRU/cost eviction; the default sweep runs every 30 minutes</td></tr>
-            <tr><td>HTTP URLCache</td><td>The existing SDWebImage downloader decides its URLSession/HTTP-cache behavior; this experiment does not override it</td><td>The library default downloader uses <code>URLSessionConfiguration.ephemeral</code>, so it does not persist an HTTP URLCache</td><td>Disabled explicitly when aggregate <code>DataCache</code> is enabled, so disk hits come from Nuke DataCache</td></tr>
-            <tr><td>Sharing</td><td colspan="3">Caches are isolated. A cache entry written by one engine cannot be read by another engine.</td></tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section>
-        <h2>6. Metrics lifecycle</h2>
-        <div class="grid">
-          <article class="card"><h3>Start</h3><p>Experiment fetchers create a UUID <code>resourceKey</code> and emit an image request started event with requested width and height.</p></article>
-          <article class="card"><h3>Timed provider work</h3><p>The duration clock covers the selected provider operation. It includes cache lookup, download, decoding, and provider processing.</p></article>
-          <article class="card"><h3>Finish</h3><p>The clock stops before deferred metadata is evaluated, keeping expensive Kingfisher data serialization outside <code>image_duration_ms</code>.</p></article>
-          <article class="card"><h3>Cache source</h3><p>Each provider maps its native result to <code>Memory</code>, <code>Disk</code>, <code>Network</code>, or <code>Unknown</code>.</p></article>
-          <article class="card"><h3>Duplicate work</h3><p>An actor keyed by image ID, size, crop mode, and grayscale marks whether an identical request was already in flight.</p></article>
-          <article class="card"><h3>Reporters</h3><p>The composition root sends experiment metrics to Datadog RUM. The ordinary non-experiment path uses a no-op reporter.</p></article>
-        </div>
-        <details><summary>Datadog attributes</summary><p><code>image_service</code>, requested dimensions, <code>image_outcome</code>, <code>image_cache_source</code>, <code>image_duration_ms</code>, duplicate state, response format, decoded dimensions, decoded memory cost, and encoded size when available. Raw URLs, image IDs, user IDs, and arbitrary error text are not emitted.</p></details>
-      </section>
-
-      <section>
-        <h2>7. Datadog dashboard and engine score</h2>
-        <p><a href="https://app.datadoghq.com/dashboard/ak9-4wi-3xa?fromUser=true&amp;refresh_mode=sliding&amp;tpl_var_env%5B0%5D=prod&amp;from_ts=1790670981452&amp;to_ts=1790678181452&amp;live=true" target="_blank" rel="noopener">Open the iOS Remote Image Library Experiment dashboard in Datadog ↗</a></p>
-        <div class="notice"><strong>Dashboard scope.</strong> The dashboard reads Datadog RUM resource events from the experiment. The score is relative: 100 means best among the engines in the selected window, not an absolute performance target.</div>
-        <h3>Initial weights</h3>
-        <table><thead><tr><th>Component</th><th>Data</th><th>Weight</th></tr></thead><tbody>
-          <tr><td>Network latency</td><td><code>image_duration_ms</code>, Network source, p90 lower-is-better</td><td><strong>40%</strong></td></tr>
-          <tr><td>Disk latency</td><td><code>image_duration_ms</code>, Disk source, p90 lower-is-better</td><td><strong>10%</strong></td></tr>
-          <tr><td>Memory latency</td><td><code>image_duration_ms</code>, Memory source, p90 lower-is-better</td><td><strong>5%</strong></td></tr>
-          <tr><td>Reliability</td><td><code>success_count / total_count</code>, higher-is-better</td><td><strong>20%</strong></td></tr>
-          <tr><td>Decoded memory footprint</td><td><code>image_decoded_memory_cost_bytes</code>, p90 lower-is-better</td><td><strong>20%</strong></td></tr>
-          <tr><td>Wasted work</td><td><code>image_is_duplicate_request</code>, lower-is-better</td><td><strong>5%</strong></td></tr>
-          <tr><td>Cache effectiveness</td><td><code>image_cache_source</code>, descriptive only because coverage is incomplete</td><td>Descriptive</td></tr>
-          <tr><td>Bandwidth</td><td><code>image_encoded_size_bytes</code>, descriptive only because coverage is incomplete</td><td>Descriptive</td></tr>
-        </tbody></table>
-        <h3>Relative formula</h3>
-        <div class="diagram"><pre>lower-is-better = 100 × min(best_value / provider_value, 1)
-higher-is-better = 100 × min(provider_value / best_value, 1)
-
-engine_score =
-    0.40 × network_score
-  + 0.10 × disk_score
-  + 0.05 × memory_latency_score
-  + 0.20 × reliability_score
-  + 0.20 × decoded_memory_score
-  + 0.05 × duplicate_work_score
-
-Active weights sum to 100%.
-Cache effectiveness and bandwidth remain diagnostic widgets only.</pre></div>
-        <h3>Thresholds and missing data</h3>
-        <ul><li><strong>Green:</strong> score greater than 80.</li><li><strong>Orange:</strong> score from 50 through 80.</li><li><strong>Red:</strong> score below 50.</li><li>A blank component means its query has no usable data; it is not zero or 100.</li><li>Network, Disk, and Memory are separated so cache hits do not make an engine appear faster at downloading.</li></ul>
-      </section>
-
-      <section>
-        <h2>8. Failure, cancellation, and fallback behavior</h2>
-        <div class="grid">
-          <article class="card"><h3>Missing image ID</h3><p>The fetch finishes as a failure metric and returns the request item's fallback image.</p></article>
-          <article class="card"><h3>Provider error</h3><p>The fetch records failure, returns the fallback, and does not publish a successful image.</p></article>
-          <article class="card"><h3>Cancellation</h3><p>A new request or view disappearance cancels the previous task. Cancellation is recorded as cancelled when the provider operation throws while cancelled.</p></article>
-          <article class="card"><h3>Placeholder</h3><p>The cache check is used to decide whether the placeholder should be shown while the selected provider loads the image.</p></article>
-          <article class="card"><h3>Default path</h3><p>Without an explicit service, the normal modifier uses the existing CustomerFoundation/SDWebImage application service, preserves the existing rendering behavior, and installs <code>NoOpRemoteImageMetrics</code>, so it emits no experiment metrics.</p></article>
-          <article class="card"><h3>Invalid toggle</h3><p>Empty, missing, malformed, <code>sdwebimage</code>, or unknown values resolve to the SDWebImage control.</p></article>
-        </div>
-      </section>
-
-      <section>
-        <h2>9. Source map</h2>
-        <table>
-          <thead><tr><th>Actor</th><th>Repository path</th><th>Responsibility</th></tr></thead>
-          <tbody>
-            <tr><td>V2 renderer</td><td><code>Modules/BDUIRenderers/Sources/Components/StoreCardV2/StoreCardV2Renderer.swift</code></td><td>Resolves the feature-toggle-selected service.</td></tr>
-            <tr><td>V2 view</td><td><code>Modules/BDUIRenderers/Sources/Components/StoreCardV2/StoreCardV2View.swift</code></td><td>Passes the service to the thumbnail RemoteImageView.</td></tr>
-            <tr><td>V3 renderer/view</td><td><code>Modules/BDUIRenderers/Sources/Components/StoreCardV3Large/</code></td><td>Equivalent experiment wiring for StoreCardV3Large.</td></tr>
-            <tr><td>Feature toggle</td><td><code>Modules/CustomerFoundationAPI/Sources/ImageDownloaderProtocol/FeatureToggle+ImageService.swift</code></td><td>Defines <code>IOS_IMAGE_DOWNLOAD_SERVICE</code>.</td></tr>
-            <tr><td>Service mapping</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageService+ExperimentVariant.swift</code></td><td>Maps toggle values to engines.</td></tr>
-            <tr><td>SwiftUI seam</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageView.swift</code></td><td>Separates the normal CustomerFoundation/SDWebImage path from the explicit experiment overload.</td></tr>
-            <tr><td>Fetcher</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageFetcher.swift</code></td><td>Owns lifecycle, timing, fetch, fallback, and metrics completion.</td></tr>
-            <tr><td>Proxy</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/ImageServiceProviderProxy.swift</code></td><td>Selects provider and tracks duplicate requests.</td></tr>
-            <tr><td>Provider configuration</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageLibraryConfiguration.swift</code></td><td>Creates shared Kingfisher manager and Nuke pipeline.</td></tr>
-            <tr><td>Parity constants</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageEngineConfiguration.swift</code></td><td>Defines scale-down and cache limits.</td></tr>
-            <tr><td>Metrics</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageMetrics.swift</code> and <code>DatadogRemoteImageMetrics.swift</code></td><td>Defines and reports the experiment signals.</td></tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
-    <footer>Generated as a local technical walkthrough from the current repository implementation. It is intentionally standalone and does not require a web server.</footer>
-  </div>
-  <script>
-    const stageData = {
-      view: ['BDUI card view', '<p>The V2 or V3 renderer creates the card view with a model, renderer container, event callback, and the feature-toggle-selected image service.</p><p>The thumbnail remains the same SwiftUI rendering surface for every cohort.</p>'],
-      toggle: ['Feature-toggle resolution', '<p>The renderer calls <code>getFeatureValue(FeatureToggles.imageServiceExperiment)</code>. The string is mapped case-insensitively: <code>kingfisher</code> and <code>nuke</code> select challengers; every other value selects SDWebImage.</p><p>The renderer owns selection so the view stays focused on rendering.</p>'],
-      remote: ['Shared SwiftUI seam', '<p><code>RemoteImageView(_:service:)</code> enters the deprecated experiment overload. Without a service, the normal <code>.fetchImage</code> path uses the application provider and no-op metrics.</p><p>The explicit service path preserves the same placeholder, fallback, color-scheme, cancellation, and image-update behavior while enabling provider selection and metrics.</p>'],
-      fetcher: ['Fetcher and proxy', '<p><code>RemoteImageFetcher</code> creates the request metric, checks cache state for placeholder decisions, starts the asynchronous task, and owns cancellation.</p><p><code>ImageServiceProviderProxy</code> selects the provider, registers duplicate requests, forwards the fetch result, and adds duplicate-request metadata.</p>'],
-      provider: ['Selected image service', '<p>SDWebImage delegates to the application CustomerFoundation image service. Kingfisher uses its own manager/downloader/cache. Nuke uses its own pipeline/data loader/cache.</p><p>All providers reuse the application service for URL resolution, so the same image request and CDN URL are preserved while the underlying engine changes.</p>']
-    };
-    const engineData = {
-      control: ['SDWebImage', 'The control path uses ImageServiceAdapter in AppDelegate, which calls the existing CustomerFoundation image service and receives source-aware responses from SDWebImage. Its cache is an application-wide SDImageCache.'],
-      kf: ['Kingfisher', 'Kingfisher uses the shared KingfisherManager with its own MemoryStorage, DiskStorage, downloader, and processor. It receives the same resolved URL and maps RetrieveImageResult.cacheType to the experiment cache source.'],
-      nuke: ['Nuke', 'Nuke uses the shared ImagePipeline with an explicit ImageCache and DataCache. HTTP URLCache is disabled when DataCache is enabled so Disk means Nuke DataCache rather than an ambiguous URLSession response.']
-    };
-    const detail = document.querySelector('#stage-detail');
-    const engineContent = document.querySelector('#engine-content');
-    function renderStage(key) { detail.innerHTML = '<h3>' + stageData[key][0] + '</h3>' + stageData[key][1]; detail.classList.add('show'); document.querySelectorAll('.stage').forEach(el => el.classList.toggle('active', el.dataset.stage === key)); }
-    function renderEngine(key) { const data = engineData[key]; engineContent.innerHTML = '<article class="card provider ' + key + '"><h3>' + data[0] + '</h3><p>' + data[1] + '</p><p><span class="pill">same RemoteImage request</span><span class="pill">same resolved URL</span><span class="pill">own cache/pipeline</span></p></article>'; document.querySelectorAll('[data-engine]').forEach(el => el.classList.toggle('active', el.dataset.engine === key)); }
-    document.querySelectorAll('.stage').forEach(el => el.addEventListener('click', () => renderStage(el.dataset.stage)));
-    document.querySelectorAll('[data-engine]').forEach(el => el.addEventListener('click', () => renderEngine(el.dataset.engine)));
-    renderStage('view'); renderEngine('control');
-  </script>
+  <main>
+    <h1>Shared HTML Pages</h1>
+    <p>This repository is a lightweight publishing pipeline for quickly sharing standalone HTML pages through GitHub Pages.</p>
+    <p>Published documents live under their own route and can be replaced or added without coupling the repository to a specific implementation.</p>
+  </main>
 </body>
 </html>
