@@ -178,7 +178,7 @@ SwiftUI renders the image</pre></div>
           <article class="card"><h3>Finish</h3><p>The clock stops before deferred metadata is evaluated, keeping expensive Kingfisher data serialization outside <code>image_duration_ms</code>.</p></article>
           <article class="card"><h3>Cache source</h3><p>Each provider maps its native result to <code>Memory</code>, <code>Disk</code>, <code>Network</code>, or <code>Unknown</code>.</p></article>
           <article class="card"><h3>Duplicate work</h3><p>An actor keyed by image ID, size, crop mode, and grayscale marks whether an identical request was already in flight.</p></article>
-          <article class="card"><h3>Reporters</h3><p>The composition root fans metrics to local logging and Datadog RUM. The ordinary non-experiment path uses a no-op reporter.</p></article>
+          <article class="card"><h3>Reporters</h3><p>The composition root sends experiment metrics to Datadog RUM. The ordinary non-experiment path uses a no-op reporter.</p></article>
         </div>
         <details><summary>Datadog attributes</summary><p><code>image_service</code>, requested dimensions, <code>image_outcome</code>, <code>image_cache_source</code>, <code>image_duration_ms</code>, duplicate state, response format, decoded dimensions, decoded memory cost, and encoded size when available. Raw URLs, image IDs, user IDs, and arbitrary error text are not emitted.</p></details>
       </section>
@@ -229,7 +229,7 @@ Cache effectiveness and bandwidth remain diagnostic widgets only.</pre></div>
       </section>
 
       <section>
-        <h2>8. Source map</h2>
+        <h2>9. Source map</h2>
         <table>
           <thead><tr><th>Actor</th><th>Repository path</th><th>Responsibility</th></tr></thead>
           <tbody>
