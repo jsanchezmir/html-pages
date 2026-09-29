@@ -113,7 +113,7 @@
         <h2>3. Actor map</h2>
         <div class="grid">
           <article class="card"><h3>Renderer container</h3><p>Composition root injects <code>FeatureToggleServiceProtocol</code> into the V2 and V3 renderers.</p><span class="pill">BDUI</span><span class="pill">dependency injection</span></article>
-          <article class="card"><h3>Feature toggle</h3><p><code>IOS_IMAGE_DOWNLOAD_SERVICE</code> is read as a string. <code>kingfisher</code> and <code>nuke</code> select challengers; all other values select SDWebImage.</p><span class="pill">Customer_App$$$ layer</span><span class="pill">safe default</span></article>
+          <article class="card"><h3>Feature toggle</h3><p><code>IOS_IMAGE_DOWNLOAD_SERVICE</code> is read as a string. <code>kingfisher</code> and <code>nuke</code> select challengers; all other values select SDWebImage. The fallback behavior is the existing CustomerFoundation image service, with no experiment metrics on the normal path.</p><span class="pill">Customer_App$$$ layer</span><span class="pill">fallback: SDWebImage</span></article>
           <article class="card"><h3>RemoteImage</h3><p>Immutable request description: image IDs, light/dark variants, size, crop mode, grayscale, placeholder, and fallback.</p><span class="pill">no I/O</span><span class="pill">provider-neutral</span></article>
           <article class="card"><h3>RemoteImageView</h3><p>Uses the normal <code>.fetchImage</code> path when no service is supplied, or the deprecated experiment overload when an explicit service is supplied.</p><span class="pill">SwiftUI</span><span class="pill">lifecycle</span></article>
           <article class="card"><h3>RemoteImageFetcher</h3><p>Owns cancellation, placeholder checks, asynchronous fetch, completion, duration clock, and deferred metadata evaluation.</p><span class="pill">@MainActor</span><span class="pill">ContinuousClock</span></article>
@@ -162,9 +162,9 @@ SwiftUI renders the image</pre></div>
           <tbody>
             <tr><td>Memory cache</td><td><code>SDImageCache</code>, 20 MB, unlimited count</td><td><code>MemoryStorage</code>, 20 MB, <code>Int.max</code> count</td><td><code>ImageCache</code>, 20 MB, <code>Int.max</code> count</td></tr>
             <tr><td>Scale-down</td><td>Enabled in the experiment; 4096 px cap and 2 MB decoded-memory limit</td><td>Processor enabled; approximately 724 px effective RGBA cap; no upscaling</td><td>Resize processor enabled; approximately 724 px effective RGBA cap; no upscaling</td></tr>
-            <tr><td>Disk cache</td><td>Persistent <code>SDImageCache</code> disk layer</td><td>Persistent <code>DiskStorage</code>; default size limit is 0 (unlimited)</td><td>Persistent <code>DataCache</code>; 150 MB limit</td></tr>
-            <tr><td>Expiration</td><td>SDWebImage defaults</td><td>Memory default 5 minutes; disk default 7 days since access</td><td>No time TTL by default; LRU sweep every 30 minutes</td></tr>
-            <tr><td>HTTP URLCache</td><td>Existing SDWebImage downloader configuration</td><td>Default downloader uses ephemeral URLSession configuration</td><td>Disabled when aggregate <code>DataCache</code> is enabled</td></tr>
+            <tr><td>Disk cache</td><td>Persistent <code>SDImageCache</code> disk layer; this service does not set a disk-size limit, so SDWebImage applies its own storage policy</td><td>Persistent <code>DiskStorage</code>; the library default size limit is <code>0</code>, meaning unlimited</td><td>Persistent <code>DataCache</code>; explicitly limited to 150 MB</td></tr>
+            <tr><td>Expiration</td><td>SDWebImage library expiration policy applies because the experiment does not override it</td><td>Memory entries expire after the library default of 5 minutes; disk entries expire after 7 days since last access</td><td>There is no time-based TTL by default, so entries remain until LRU/cost eviction; the default sweep runs every 30 minutes</td></tr>
+            <tr><td>HTTP URLCache</td><td>The existing SDWebImage downloader decides its URLSession/HTTP-cache behavior; this experiment does not override it</td><td>The library default downloader uses <code>URLSessionConfiguration.ephemeral</code>, so it does not persist an HTTP URLCache</td><td>Disabled explicitly when aggregate <code>DataCache</code> is enabled, so disk hits come from Nuke DataCache</td></tr>
             <tr><td>Sharing</td><td colspan="3">Caches are isolated. A cache entry written by one engine cannot be read by another engine.</td></tr>
           </tbody>
         </table>
@@ -190,7 +190,7 @@ SwiftUI renders the image</pre></div>
           <article class="card"><h3>Provider error</h3><p>The fetch records failure, returns the fallback, and does not publish a successful image.</p></article>
           <article class="card"><h3>Cancellation</h3><p>A new request or view disappearance cancels the previous task. Cancellation is recorded as cancelled when the provider operation throws while cancelled.</p></article>
           <article class="card"><h3>Placeholder</h3><p>The cache check is used to decide whether the placeholder should be shown while the selected provider loads the image.</p></article>
-          <article class="card"><h3>Default path</h3><p>Without an explicit service, the normal modifier uses the existing application service and <code>NoOpRemoteImageMetrics</code>.</p></article>
+          <article class="card"><h3>Default path</h3><p>Without an explicit service, the normal modifier uses the existing CustomerFoundation/SDWebImage application service, preserves the existing rendering behavior, and installs <code>NoOpRemoteImageMetrics</code>, so it emits no experiment metrics.</p></article>
           <article class="card"><h3>Invalid toggle</h3><p>Empty, missing, malformed, <code>sdwebimage</code>, or unknown values resolve to the SDWebImage control.</p></article>
         </div>
       </section>
@@ -205,7 +205,7 @@ SwiftUI renders the image</pre></div>
             <tr><td>V3 renderer/view</td><td><code>Modules/BDUIRenderers/Sources/Components/StoreCardV3Large/</code></td><td>Equivalent experiment wiring for StoreCardV3Large.</td></tr>
             <tr><td>Feature toggle</td><td><code>Modules/CustomerFoundationAPI/Sources/ImageDownloaderProtocol/FeatureToggle+ImageService.swift</code></td><td>Defines <code>IOS_IMAGE_DOWNLOAD_SERVICE</code>.</td></tr>
             <tr><td>Service mapping</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageService+ExperimentVariant.swift</code></td><td>Maps toggle values to engines.</td></tr>
-            <tr><td>SwiftUI seam</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageView.swift</code></td><td>Separates default and experiment overloads.</td></tr>
+            <tr><td>SwiftUI seam</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageView.swift</code></td><td>Separates the normal CustomerFoundation/SDWebImage path from the explicit experiment overload.</td></tr>
             <tr><td>Fetcher</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageFetcher.swift</code></td><td>Owns lifecycle, timing, fetch, fallback, and metrics completion.</td></tr>
             <tr><td>Proxy</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/ImageServiceProviderProxy.swift</code></td><td>Selects provider and tracks duplicate requests.</td></tr>
             <tr><td>Provider configuration</td><td><code>Modules/LocalDesignSystem/Sources/RemoteImage/RemoteImageLibraryConfiguration.swift</code></td><td>Creates shared Kingfisher manager and Nuke pipeline.</td></tr>
